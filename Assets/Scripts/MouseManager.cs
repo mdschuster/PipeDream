@@ -42,6 +42,10 @@ public class MouseManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (GameManager.instance().isGameOver())
+        {
+            return;
+        }
         updateSelectedTile();
         if (Input.GetMouseButtonDown(0))
         {
@@ -51,6 +55,7 @@ public class MouseManager : MonoBehaviour
 
     private void updateSelectedTile()
     {
+
         Vector3Int mousePos = getMousePosition();
         if (mousePos != previousMousePos)
         {

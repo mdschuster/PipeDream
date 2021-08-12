@@ -47,12 +47,22 @@ public class GameManager : MonoBehaviour
     [ColorUsageAttribute(true, true)]
     [SerializeField] private Color powerColor;
 
+    [Header("Game Over UI")]
+    [SerializeField] private CanvasGroup gameOverCanvas;
+    [SerializeField] private Image winImage;
+    [SerializeField] private Image loseImage;
 
+
+
+
+
+    private float winCheckTimer;
     private bool gameOver = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        winCheckTimer = 3f;
         gameReset();
         mouseManager.onLeftClicked += spawnManager.updateQueue;
     }
@@ -60,19 +70,31 @@ public class GameManager : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        winCheckTimer -= Time.deltaTime;
         updateSlider();
-        if (isOutOfPower() && !gameOver)
+        if ((isOutOfPower() || winCheckTimer <= 0f) && !gameOver)
         {
-            gameOver = true;
-            bool win = spawnManager.spawnFinalPath();
-            underMapMat.SetColor("_maincolor", powerColor);
-            if (win)
+            if (isOutOfPower())
+            {
+                gameOver = true;
+            }
+            bool win = spawnManager.spawnFinalPath(false);
+
+            if (win && gameOver)
             {
                 print("You Win");
+                spawnManager.spawnFinalPath(true);
+                underMapMat.SetColor("_maincolor", powerColor);
+                winImage.gameObject.SetActive(true);
+                StartCoroutine(FadeInUI(gameOverCanvas));
             }
-            else
+            else if (!win && gameOver)
             {
                 print("You Lose");
+                spawnManager.spawnFinalPath(true);
+                underMapMat.SetColor("_maincolor", powerColor);
+                loseImage.gameObject.SetActive(true);
+                StartCoroutine(FadeInUI(gameOverCanvas));
             }
         }
 
@@ -116,6 +138,25 @@ public class GameManager : MonoBehaviour
     public Tile getNextPlaceableTile()
     {
         return spawnManager.getNextPlaceableTile();
+    }
+
+    private IEnumerator FadeInUI(CanvasGroup canvas)
+    {
+        float timeToFade = 2;
+        float finalAlpha = 1;
+        float startAlpha = 0;
+        for (float t = 0.0f; t < 1.0f; t += Time.deltaTime / timeToFade)
+        {
+            float alpha = Mathf.Lerp(startAlpha, finalAlpha, t);
+            canvas.alpha = alpha;
+            yield return null;
+        }
+
+    }
+
+    public bool isGameOver()
+    {
+        return gameOver;
     }
 
 

@@ -84,6 +84,10 @@ public class SpawnManager : MonoBehaviour
 
     public void updateQueue()
     {
+        if (GameManager.instance().isGameOver())
+        {
+            return;
+        }
         Vector3Int mousePos = GameManager.instance().getMousePos();
 
         //don't do anything if we haven't clicked on the gameplay map
@@ -124,7 +128,7 @@ public class SpawnManager : MonoBehaviour
 
 
 
-    public bool spawnFinalPath()
+    public bool spawnFinalPath(bool doPlace)
     {
         bool win = false;
         Vector3Int left = new Vector3Int(-1, 0, 0);
@@ -147,7 +151,7 @@ public class SpawnManager : MonoBehaviour
             {
                 if (testTile.name == "Start") //Tile is missnamed
                 {
-                    placeUnderMapTile(underTileEnd, currentPos);
+                    if (doPlace) placeUnderMapTile(underTileEnd, currentPos);
                     finished = true;
                     win = true;
                     break;
@@ -197,7 +201,7 @@ public class SpawnManager : MonoBehaviour
                 }
                 if (finished == false)
                 {
-                    placeUnderMapTile(tileToPlace, currentPos);
+                    if (doPlace) placeUnderMapTile(tileToPlace, currentPos);
                 }
             }
             else
